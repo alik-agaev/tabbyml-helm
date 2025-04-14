@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "tabby-server.fullname" . }}
+  labels:
+    app: {{ include "tabby-server.name" . }}
+spec:
+  serviceName: "{{ include "tabby-server.fullname" . }}"
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "tabby-server.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "tabby-server.name" . }}
+    spec:
+      containers:
+        - name: tabby
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          {{- if .Values.command }}
+          command:
+            {{- toYaml .Values.command | nindent 10 }}
+          {{- end }}
+          args:
+            {{- if .Values.args }}
+            {{- toYaml .Values.args | nindent 10 }}
+            {{- else }}
+            - "serve"
+            {{- end }}
+          env:
+            {{- range .Values.env }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: config
+              mountPath: /data/config.toml
+              subPath: config.toml
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "tabby-server.name" . }}-data
+        - name: config
+          secret:
+            secretName: {{ include "tabby-server.name" . }}-config
+

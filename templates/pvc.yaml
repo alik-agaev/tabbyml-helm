@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "tabby-server.name" . }}-data
+  labels:
+    app: {{ include "tabby-server.name" . }}
+spec:
+  accessModes: {{ toJson .Values.pvc.data.accessModes }}
+  resources:
+    requests:
+      storage: {{ .Values.pvc.data.size }}
+  storageClassName: {{ .Values.pvc.data.storageClassName | quote }}

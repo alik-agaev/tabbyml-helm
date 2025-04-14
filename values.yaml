@@ -1,0 +1,32 @@
+replicaCount: 1
+image:
+  repository: tabbyml/tabby
+  tag: 0.27.1
+
+# command: ["/opt/tabby/bin/tabby-cpu"]
+# args: [ "serve", "--model", "DeepSeekCoder-6.7B", "--chat-model", "CodeQwen-7B-Chat", "--parallelism", "2" ]
+
+resources: {}
+
+pvc:
+  data:
+    size: 10Gi
+    accessModes: ["ReadWriteOnce"]
+    storageClassName: default
+
+ingress:
+  enabled: false
+  hostname: "example"
+  path: "/"
+
+configFile: |
+  [logs]
+  level = "debug"
+
+env: {}
+  # - name: LD_LIBRARY_PATH
+  #   value: "/usr/local/cuda/lib64:/usr/local/cuda/compat:$LD_LIBRARY_PATH"
+
+service:
+  port: 8080
+  targetPort: 8080
